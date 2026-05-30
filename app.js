@@ -275,15 +275,15 @@ class Particle {
 class Balloon {
   constructor(canvasWidth, level) {
     this.canvasWidth = canvasWidth;
-    this.radius = Math.random() * 25 + 30;
+    this.radius = Math.random() * 30 + 45; // Bigger balloons (45px to 75px) for easier kid swats
     this.x = Math.random() * (canvasWidth - this.radius * 2) + this.radius;
     this.y = -this.radius;
     
     const colors = ['#f43f5e', '#ec4899', '#a855f7', '#06b6d4', '#10b981', '#f59e0b', '#ef4444'];
     this.color = colors[Math.floor(Math.random() * colors.length)];
     
-    const baseSpeed = Math.random() * 1.5 + 1.2;
-    const speedMultiplier = 1.0 + (level - 1) * 0.25;
+    const baseSpeed = Math.random() * 0.9 + 0.7; // Slower falling speed (0.7 to 1.6)
+    const speedMultiplier = 1.0 + (level - 1) * 0.22;
     this.vy = baseSpeed * speedMultiplier;
     
     this.vx = 0;
@@ -874,7 +874,7 @@ class GameEngine {
     this.score = 0;
     this.level = 1;
     this.timeLeft = 60;
-    this.lives = 3;
+    this.lives = 5; // 5 chances (hearts) instead of 3 for easier kid play
     
     this.tracker = new PoseTracker();
     this.puppy = null;
@@ -938,7 +938,7 @@ class GameEngine {
       sfx.playBounce();
       this.score = 0;
       this.level = 1;
-      this.lives = 3;
+      this.lives = 5;
       this.timeLeft = 60;
       this.transitionToState('playing');
     });
@@ -1145,7 +1145,7 @@ class GameEngine {
     }
 
     let hearts = '';
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < 5; i++) { // Render up to 5 hearts
       hearts += i < this.lives ? '❤️️' : '🖤';
     }
     this.heartsValEl.textContent = hearts;
