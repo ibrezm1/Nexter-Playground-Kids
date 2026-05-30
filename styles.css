@@ -623,3 +623,12 @@ input[type="range"]#speed-slider::-webkit-slider-thumb:hover {
   text-align: center;
   text-shadow: 0 0 8px rgba(56, 189, 248, 0.3);
 }
+
+.hands-up-tip {
+  margin-top: 15px;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fbbf24;
+  text-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
+  animation: pulse 1.5s infinite;
+}

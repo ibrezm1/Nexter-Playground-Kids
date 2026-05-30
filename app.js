@@ -932,10 +932,7 @@ class GameEngine {
 
     // Level Up transition button
     document.getElementById('btn-next-level').addEventListener('click', () => {
-      sfx.playBounce();
-      this.level++;
-      this.timeLeft = 60;
-      this.transitionToState('playing');
+      this.proceedToNextLevel();
     });
 
     // Restart Game button
@@ -950,6 +947,11 @@ class GameEngine {
 
     // Keyboard Fallback Controls (Arrow Left/Right for movement, Space for jump)
     window.addEventListener('keydown', (e) => {
+      if (this.gameState === 'levelup' && (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowUp' || e.key === 'Spacebar')) {
+        this.proceedToNextLevel();
+        return;
+      }
+
       if (e.key === 'ArrowLeft') {
         this.puppetXTarget = Math.max(0.05, this.puppetXTarget - 0.06);
       } else if (e.key === 'ArrowRight') {
@@ -1009,6 +1011,14 @@ class GameEngine {
       this.leftHandTargetOffset = data.leftHand;
       this.rightHandTargetOffset = data.rightHand;
       this.playerIsJumping = data.isJumping;
+
+      // Auto next level if hands are raised up high
+      if (this.gameState === 'levelup') {
+        const handsUp = data.leftHand.y < -0.3 && data.rightHand.y < -0.3;
+        if (handsUp) {
+          this.proceedToNextLevel();
+        }
+      }
     };
 
     // When calibration tracks a player, unlock all carousel play buttons!
@@ -1075,6 +1085,14 @@ class GameEngine {
     // Cosmic cockpit base positions
     this.cosmicCockpitX = this.canvas.width / 2;
     this.cosmicCockpitY = this.canvas.height - 130;
+  }
+
+  proceedToNextLevel() {
+    if (this.gameState !== 'levelup') return;
+    sfx.playBounce();
+    this.level++;
+    this.timeLeft = 60;
+    this.transitionToState('playing');
   }
 
   transitionToState(newState) {
