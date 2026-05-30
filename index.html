@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Puppy Balloon Bounce! - Kids Motion Game</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  
+  <!-- MediaPipe CDN Dependencies -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js" crossorigin="anonymous"></script>
+</head>
+<body>
+  <div id="app-container">
+    <!-- Camera Overlay (Mirror preview for kid) -->
+    <div id="camera-container" class="glass-panel">
+      <div class="camera-title">🎥 Your Camera</div>
+      <div class="video-wrapper">
+        <video id="webcam" autoplay playsinline></video>
+        <canvas id="camera-overlay"></canvas>
+      </div>
+      <div id="camera-status" class="status-connecting">Initializing Camera...</div>
+    </div>
+
+    <!-- Main Game Area -->
+    <div id="game-container">
+      <!-- HUD Dashboard -->
+      <div id="hud" class="glass-panel">
+        <div class="hud-item">
+          <span class="hud-label">Score</span>
+          <span id="score-val" class="hud-value">0</span>
+        </div>
+        <div class="hud-item">
+          <span class="hud-label">Level</span>
+          <span id="level-val" class="hud-value font-bounce">1</span>
+        </div>
+        <div class="hud-item">
+          <span class="hud-label">Time Left</span>
+          <div class="timer-bar-container">
+            <div id="timer-bar"></div>
+          </div>
+          <span id="timer-val" class="hud-value">60s</span>
+        </div>
+        <div class="hud-item">
+          <span class="hud-label">Hearts</span>
+          <span id="hearts-val" class="hud-value">❤️️❤️️❤️️</span>
+        </div>
+      </div>
+
+      <!-- Main Game Rendering Canvas -->
+      <canvas id="game-canvas"></canvas>
+
+      <!-- Kids Motion Playground Landing Hub -->
+      <div id="screen-welcome" class="screen-overlay active">
+        <div class="card glass-panel text-center pulse-glow playground-hub-card">
+          <h1 class="game-title">🎈 Motion Playground 🎈</h1>
+          <p class="game-subtitle">Step back from the camera and choose a fun motion game to play!</p>
+          
+          <!-- Unified Camera Calibration Bar -->
+          <div id="hub-calibration-status" class="status-connecting">🎥 Initializing Camera tracking...</div>
+          
+          <div class="carousel-wrapper">
+            <!-- Card 1: Puppy Balloon Bounce -->
+            <div class="game-card" id="card-puppy">
+              <span class="game-card-icon">🐶</span>
+              <h3>Puppy Bounce</h3>
+              <p class="game-card-desc">Move side-to-side and wave your paws to bounce falling balloons back up!</p>
+              <div class="game-card-meta">🚶 Body lean & 👐 Arms</div>
+              <button class="btn btn-primary btn-play-game" data-game="puppy" id="btn-start" disabled>Waiting...</button>
+            </div>
+
+            <!-- Card 2: Magic Fruit Slasher -->
+            <div class="game-card" id="card-fruits">
+              <span class="game-card-icon">🍉</span>
+              <h3>Fruit Slasher</h3>
+              <p class="game-card-desc">Wave your arms to slice flying sweet fruits! Watch out for bombs!</p>
+              <div class="game-card-meta">👐 Dual-arm waving</div>
+              <button class="btn btn-primary btn-play-game" data-game="fruits" disabled>Waiting...</button>
+            </div>
+
+            <!-- Card 3: Pat-the-Pets -->
+            <div class="game-card" id="card-pets">
+              <span class="game-card-icon">🐹</span>
+              <h3>Pat-the-Pets</h3>
+              <p class="game-card-desc">Reach high and low to pat hamsters popping out of the grass!</p>
+              <div class="game-card-meta">👐 High/low reaches</div>
+              <button class="btn btn-primary btn-play-game" data-game="pets" disabled>Waiting...</button>
+            </div>
+
+            <!-- Card 4: Cosmic Shield -->
+            <div class="game-card" id="card-cosmic">
+              <span class="game-card-icon">🚀</span>
+              <h3>Cosmic Defender</h3>
+              <p class="game-card-desc">Tilt your body left/right to spin a glowing shield and block meteors!</p>
+              <div class="game-card-meta">🚶 Shoulder tilt & lean</div>
+              <button class="btn btn-primary btn-play-game" data-game="cosmic" disabled>Waiting...</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Calibration & Setup Screen -->
+      <div id="screen-calibration" class="screen-overlay hidden">
+        <div class="card glass-panel text-center">
+          <h2>🤖 Tracking Calibration</h2>
+          <p>Please stand in the center of the camera view until we detect your body.</p>
+          <div class="loading-spinner"></div>
+          <p id="calibration-feedback" class="pulse-text">Searching for player...</p>
+        </div>
+      </div>
+
+      <!-- 3-Second Setup Countdown Screen -->
+      <div id="screen-countdown" class="screen-overlay hidden">
+        <div class="card glass-panel text-center countdown-card">
+          <h2 class="countdown-title">Get Ready! Stand Back! 🐶</h2>
+          <div id="countdown-number" class="countdown-num">3</div>
+          <p class="countdown-tip">Prepare to move and swat balloons!</p>
+        </div>
+      </div>
+
+      <!-- Level Up Screen -->
+      <div id="screen-levelup" class="screen-overlay hidden">
+        <div class="card glass-panel text-center pop-in">
+          <h2 class="congrats-title">🎉 LEVEL COMPLETED!</h2>
+          <p>Super Job! You saved the balloons!</p>
+          <div class="next-level-badge">Level <span id="next-level-num">2</span></div>
+          <p class="level-desc" id="level-desc-text">Get ready, wind is picking up and balloons fall faster!</p>
+          <button id="btn-next-level" class="btn btn-primary">Start Level <span id="btn-next-level-num">2</span></button>
+        </div>
+      </div>
+
+      <!-- Game Over Screen -->
+      <div id="screen-gameover" class="screen-overlay hidden">
+        <div class="card glass-panel text-center pop-in">
+          <h2 class="gameover-title">💔 GAME OVER</h2>
+          <p>Too many balloons popped!</p>
+          <div class="stats-summary">
+            <div>Final Score: <span id="final-score" class="highlight-val">0</span></div>
+            <div>Levels Cleared: <span id="final-level" class="highlight-val">0</span></div>
+          </div>
+          <button id="btn-restart" class="btn btn-primary">Play Again 🐶</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="pose-tracker.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
