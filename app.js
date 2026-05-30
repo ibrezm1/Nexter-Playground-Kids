@@ -613,13 +613,12 @@ class GameEngine {
         }
       }
 
-      // Track hand coordinates
+      // Track hand coordinates (mapped to align perfectly with burrow holes when hands are raised)
       const px = this.puppetXTarget * w;
-      const py = h - 120;
       const lhx = px - 32 - this.leftHandTargetOffset.x * 220;
-      const lhy = py + 38 + this.leftHandTargetOffset.y * 220;
+      const lhy = h * 0.75 + 100 + this.leftHandTargetOffset.y * 180;
       const rhx = px + 32 - this.rightHandTargetOffset.x * 220;
-      const rhy = py + 38 + this.rightHandTargetOffset.y * 220;
+      const rhy = h * 0.75 + 100 + this.rightHandTargetOffset.y * 180;
 
       for (let i = this.pets.length - 1; i >= 0; i--) {
         const pet = this.pets[i];
@@ -825,14 +824,12 @@ class GameEngine {
     const w = this.canvas.width;
     const h = this.canvas.height;
 
-    const px = this.puppetXTarget * w;
-    const py = h - 120;
-    
+    // Track hand coordinates (mapped to align perfectly with burrow holes when hands are raised)
     const lhx = px - 32 - this.leftHandTargetOffset.x * 220;
-    const lhy = py + 38 + this.leftHandTargetOffset.y * 220;
+    const lhy = h * 0.75 + 100 + this.leftHandTargetOffset.y * 180;
     
     const rhx = px + 32 - this.rightHandTargetOffset.x * 220;
-    const rhy = py + 38 + this.rightHandTargetOffset.y * 220;
+    const rhy = h * 0.75 + 100 + this.rightHandTargetOffset.y * 180;
 
     // Draw left hammer (blue) and right hammer (pink/red)
     this.drawSingleHammer(ctx, lhx, lhy, '#38bdf8', '#0369a1');
