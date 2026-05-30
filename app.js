@@ -284,7 +284,7 @@ class Balloon {
     const colors = ['#f43f5e', '#ec4899', '#a855f7', '#06b6d4', '#10b981', '#f59e0b', '#ef4444'];
     this.color = colors[Math.floor(Math.random() * colors.length)];
     
-    const baseSpeed = Math.random() * 0.9 + 0.85; // slightly faster than previous slow default (0.85 to 1.75)
+    const baseSpeed = Math.random() * 1.2 + 1.4; // Faster falling velocities (1.4 to 2.6)
     const speedMultiplier = 1.0 + (level - 1) * 0.22;
     this.vy = baseSpeed * speedMultiplier * globalSpeedMultiplier;
     
