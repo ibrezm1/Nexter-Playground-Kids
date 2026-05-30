@@ -1,5 +1,7 @@
 # 🎈 Kids Motion Playground (Nex-Style)
 
+### 🔗 Play Live Now: [https://ibrezm1.github.io/Nexter-Playground-Kids/](https://ibrezm1.github.io/Nexter-Playground-Kids/)
+
 A high-performance, real-time, motion-controlled games playground for kids built using vanilla HTML5, CSS3, Javascript, **MediaPipe Pose tracking**, and **Web Audio API**.
 
 Live-stream your movements to control puppets, slice flying fruits, pat popping hamsters, and deflect descending asteroid showers in space! No consoles required—just your browser and a web camera!
