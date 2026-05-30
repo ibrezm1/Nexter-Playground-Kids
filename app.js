@@ -1,859 +1,19 @@
 /**
  * app.js
  * Kids Motion Playground - Unified Motion-Controlled Games Engine (Nex-Style)
- * Includes: Puppy Bounce, Fruit Slasher, Pat-the-Pets, and Cosmic Defender.
+ * Refactored using ES Modules. Imports submodules for different games, sound, and particles.
  */
 
-// ==========================================
-// 1. Synthesized Audio Engine (Web Audio)
-// ==========================================
-class SoundSynth {
-  constructor() {
-    this.ctx = null;
-  }
-
-  init() {
-    if (!this.ctx) {
-      try {
-        this.ctx = new (window.AudioContext || window.webkitAudioContext)();
-      } catch (e) {
-        console.warn("AudioContext not supported or blocked:", e);
-        this.ctx = null;
-      }
-    }
-    if (this.ctx && this.ctx.state === 'suspended') {
-      try {
-        this.ctx.resume();
-      } catch (e) {
-        console.warn("AudioContext resume failed:", e);
-      }
-    }
-  }
-
-  playBounce() {
-    try {
-      this.init();
-      if (!this.ctx) return;
-      const now = this.ctx.currentTime;
-      const osc = this.ctx.createOscillator();
-      const gain = this.ctx.createGain();
-      
-      osc.type = 'triangle';
-      osc.frequency.setValueAtTime(150, now);
-      osc.frequency.exponentialRampToValueAtTime(450, now + 0.15);
-      
-      gain.gain.setValueAtTime(0.3, now);
-      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.18);
-      
-      osc.connect(gain);
-      gain.connect(this.ctx.destination);
-      
-      osc.start(now);
-      osc.stop(now + 0.2);
-    } catch (e) {
-      console.warn("playBounce failed:", e);
-    }
-  }
-
-  playPop() {
-    try {
-      this.init();
-      if (!this.ctx) return;
-      const now = this.ctx.currentTime;
-      const osc = this.ctx.createOscillator();
-      const gain = this.ctx.createGain();
-      
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(300, now);
-      osc.frequency.exponentialRampToValueAtTime(60, now + 0.08);
-      
-      gain.gain.setValueAtTime(0.4, now);
-      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
-      
-      osc.connect(gain);
-      gain.connect(this.ctx.destination);
-      
-      osc.start(now);
-      osc.stop(now + 0.12);
-    } catch (e) {
-      console.warn("playPop failed:", e);
-    }
-  }
-
-  playSlash() {
-    try {
-      this.init();
-      if (!this.ctx) return;
-      const now = this.ctx.currentTime;
-      const osc = this.ctx.createOscillator();
-      const gain = this.ctx.createGain();
-      
-      osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(600, now);
-      osc.frequency.exponentialRampToValueAtTime(100, now + 0.1);
-      
-      gain.gain.setValueAtTime(0.18, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
-      
-      osc.connect(gain);
-      gain.connect(this.ctx.destination);
-      
-      osc.start(now);
-      osc.stop(now + 0.14);
-    } catch (e) {
-      console.warn("playSlash failed:", e);
-    }
-  }
-
-  playBombBlast() {
-    try {
-      this.init();
-      if (!this.ctx) return;
-      const now = this.ctx.currentTime;
-      const osc = this.ctx.createOscillator();
-      const gain = this.ctx.createGain();
-      
-      osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(180, now);
-      osc.frequency.linearRampToValueAtTime(30, now + 0.35);
-      
-      gain.gain.setValueAtTime(0.5, now);
-      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
-      
-      osc.connect(gain);
-      gain.connect(this.ctx.destination);
-      
-      osc.start(now);
-      osc.stop(now + 0.45);
-    } catch (e) {
-      console.warn("playBombBlast failed:", e);
-    }
-  }
-
-  playLevelUp() {
-    try {
-      this.init();
-      if (!this.ctx) return;
-      const now = this.ctx.currentTime;
-      const notes = [261.63, 329.63, 392.00, 523.25];
-      notes.forEach((freq, index) => {
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-        
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(freq, now + index * 0.1);
-        
-        gain.gain.setValueAtTime(0.15, now + index * 0.1);
-        gain.gain.exponentialRampToValueAtTime(0.01, now + index * 0.1 + 0.25);
-        
-        osc.connect(gain);
-        gain.connect(this.ctx.destination);
-        
-        osc.start(now + index * 0.1);
-        osc.stop(now + index * 0.1 + 0.3);
-      });
-    } catch (e) {
-      console.warn("playLevelUp failed:", e);
-    }
-  }
-
-  playGameOver() {
-    try {
-      this.init();
-      if (!this.ctx) return;
-      const now = this.ctx.currentTime;
-      const notes = [392.00, 349.23, 311.13, 246.94];
-      notes.forEach((freq, index) => {
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-        
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(freq, now + index * 0.15);
-        
-        gain.gain.setValueAtTime(0.2, now + index * 0.15);
-        gain.gain.exponentialRampToValueAtTime(0.01, now + index * 0.15 + 0.35);
-        
-        osc.connect(gain);
-        gain.connect(this.ctx.destination);
-        
-        osc.start(now + index * 0.15);
-        osc.stop(now + index * 0.15 + 0.4);
-      });
-    } catch (e) {
-      console.warn("playGameOver failed:", e);
-    }
-  }
-
-  playTick() {
-    try {
-      this.init();
-      if (!this.ctx) return;
-      const now = this.ctx.currentTime;
-      const osc = this.ctx.createOscillator();
-      const gain = this.ctx.createGain();
-      
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(1000, now);
-      
-      gain.gain.setValueAtTime(0.1, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.03);
-      
-      osc.connect(gain);
-      gain.connect(this.ctx.destination);
-      
-      osc.start(now);
-      osc.stop(now + 0.05);
-    } catch (e) {
-      console.warn("playTick failed:", e);
-    }
-  }
-}
-
-const sfx = new SoundSynth();
+import { PoseTracker } from './pose-tracker.js';
+import { sfx } from './modules/sound.js';
+import { Particle } from './modules/particles.js';
+import { Balloon, PuppyPuppet } from './modules/games/puppy.js';
+import { Fruit, FruitPiece } from './modules/games/fruits.js';
+import { Pet } from './modules/games/pets.js';
+import { Meteor } from './modules/games/cosmic.js';
 
 // ==========================================
-// 2. Particle Effect System (Pop stars & splatters)
-// ==========================================
-class Particle {
-  constructor(x, y, color, type = 'bubble') {
-    this.x = x;
-    this.y = y;
-    this.radius = Math.random() * 6 + 4;
-    this.color = color;
-    this.type = type; // bubble, juice, star
-    
-    const angle = Math.random() * Math.PI * 2;
-    const speed = Math.random() * 7 + (type === 'juice' ? 5 : 3);
-    this.vx = Math.cos(angle) * speed;
-    this.vy = Math.sin(angle) * speed;
-    this.gravity = type === 'juice' ? 0.3 : 0.18;
-    this.alpha = 1.0;
-    this.decay = Math.random() * 0.02 + 0.02;
-  }
-
-  update() {
-    this.x += this.vx;
-    this.vy += this.gravity;
-    this.y += this.vy;
-    this.alpha -= this.decay;
-  }
-
-  draw(ctx) {
-    ctx.save();
-    ctx.globalAlpha = Math.max(0, this.alpha);
-    ctx.fillStyle = this.color;
-    
-    ctx.beginPath();
-    if (this.type === 'star') {
-      // Draw a visual star shape
-      const rot = Math.PI / 2 * 3;
-      let cx = this.x, cy = this.y;
-      let spikes = 5, outerRadius = this.radius, innerRadius = this.radius / 2;
-      let x = cx, y = cy, step = Math.PI / spikes;
-      ctx.moveTo(cx, cy - outerRadius);
-      for (let i = 0; i < spikes; i++) {
-        x = cx + Math.cos(rot + i * step * 2) * outerRadius;
-        y = cy + Math.sin(rot + i * step * 2) * outerRadius;
-        ctx.lineTo(x, y);
-        x = cx + Math.cos(rot + (i * 2 + 1) * step) * innerRadius;
-        y = cy + Math.sin(rot + (i * 2 + 1) * step) * innerRadius;
-        ctx.lineTo(x, y);
-      }
-      ctx.closePath();
-    } else {
-      // Simple circle bubble/juice
-      ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-    }
-    ctx.fill();
-    ctx.restore();
-  }
-}
-
-// ==========================================
-// 3. Puppy Balloon Bounce Entities
-// ==========================================
-class Balloon {
-  constructor(canvasWidth, level, globalSpeedMultiplier = 1.2) {
-    this.canvasWidth = canvasWidth;
-    this.radius = Math.random() * 30 + 45; // Bigger balloons (45px to 75px) for easier kid swats
-    // Use a center-biased distribution so more balloons spawn in the center than near the edges
-    const centerBiasedRand = (Math.random() + Math.random()) / 2;
-    this.x = centerBiasedRand * (canvasWidth - this.radius * 2) + this.radius;
-    this.y = -this.radius;
-    
-    const colors = ['#f43f5e', '#ec4899', '#a855f7', '#06b6d4', '#10b981', '#f59e0b', '#ef4444'];
-    this.color = colors[Math.floor(Math.random() * colors.length)];
-    
-    const baseSpeed = Math.random() * 1.2 + 1.4; // Faster falling velocities (1.4 to 2.6)
-    const speedMultiplier = 1.0 + (level - 1) * 0.22;
-    this.vy = baseSpeed * speedMultiplier * globalSpeedMultiplier;
-    
-    this.vx = 0;
-    this.windFrequency = Math.random() * 0.02 + 0.01;
-    this.windAmplitude = level > 1 ? Math.random() * 1.2 + 0.8 : 0;
-    this.oscillationOffset = Math.random() * 100;
-  }
-
-  update(tickCount, level) {
-    this.y += this.vy;
-    
-    if (level > 1) {
-      this.vx = Math.sin(tickCount * this.windFrequency + this.oscillationOffset) * this.windAmplitude;
-      this.x += this.vx;
-      
-      if (this.x - this.radius < 0) {
-        this.x = this.radius;
-        this.vx *= -1;
-      } else if (this.x + this.radius > this.canvasWidth) {
-        this.x = this.canvasWidth - this.radius;
-        this.vx *= -1;
-      }
-    }
-  }
-
-  draw(ctx) {
-    ctx.save();
-    
-    ctx.strokeStyle = 'rgba(255,255,255,0.4)';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(this.x, this.y + this.radius);
-    ctx.bezierCurveTo(
-      this.x - 8, this.y + this.radius + 15,
-      this.x + 8, this.y + this.radius + 30,
-      this.x, this.y + this.radius + 45
-    );
-    ctx.stroke();
-
-    ctx.fillStyle = this.color;
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.beginPath();
-    ctx.moveTo(this.x, this.y + this.radius - 2);
-    ctx.lineTo(this.x - 7, this.y + this.radius + 8);
-    ctx.lineTo(this.x + 7, this.y + this.radius + 8);
-    ctx.closePath();
-    ctx.fill();
-
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
-    ctx.beginPath();
-    ctx.ellipse(
-      this.x - this.radius * 0.35, 
-      this.y - this.radius * 0.35, 
-      this.radius * 0.25, 
-      this.radius * 0.15, 
-      Math.PI / 4, 
-      0, 
-      Math.PI * 2
-    );
-    ctx.fill();
-
-    ctx.restore();
-  }
-}
-
-class PuppyPuppet {
-  constructor(canvasWidth, canvasHeight) {
-    this.canvasWidth = canvasWidth;
-    this.canvasHeight = canvasHeight;
-    this.x = canvasWidth / 2;
-    this.y = canvasHeight - 120;
-    this.radius = 65;
-    
-    this.tailWagAngle = 0;
-    this.earFlopOffset = 0;
-    this.bodyBounceOffset = 0;
-    this.velocity = 0;
-    this.lastX = this.x;
-
-    this.leftHandTarget = { x: 0, y: 0 };
-    this.rightHandTarget = { x: 0, y: 0 };
-    this.leftHandCurrent = { x: 0, y: 0 };
-    this.rightHandCurrent = { x: 0, y: 0 };
-
-    this.leftLegCurrent = { x: -38, y: 44 };
-    this.rightLegCurrent = { x: 38, y: 44 };
-
-    this.jumpY = 0;
-    this.jumpVelocity = 0;
-    this.gravity = 0.52;
-    this.isPuppyJumping = false;
-  }
-
-  update(targetX, frameCount, leftHandOffset = { x: 0, y: 0 }, rightHandOffset = { x: 0, y: 0 }, isPlayerJumping = false) {
-    this.velocity = targetX - this.x;
-    this.x = targetX;
-    
-    const wagSpeed = Math.abs(this.velocity) > 1 ? 0.35 : 0.08;
-    this.tailWagAngle = Math.sin(frameCount * wagSpeed) * 0.5;
-    this.earFlopOffset = Math.sin(frameCount * 0.15) * 4 + (Math.abs(this.velocity) * 0.15);
-    this.bodyBounceOffset = Math.sin(frameCount * 0.07) * 3;
-
-    this.leftHandTarget.x = -leftHandOffset.x * 60;
-    this.leftHandTarget.y = leftHandOffset.y * 55;
-    this.rightHandTarget.x = -rightHandOffset.x * 60;
-    this.rightHandTarget.y = rightHandOffset.y * 55;
-
-    const maxReach = 72;
-    this.leftHandTarget.x = Math.max(-maxReach, Math.min(maxReach, this.leftHandTarget.x));
-    this.leftHandTarget.y = Math.max(-maxReach, Math.min(maxReach, this.leftHandTarget.y));
-    this.rightHandTarget.x = Math.max(-maxReach, Math.min(maxReach, this.rightHandTarget.x));
-    this.rightHandTarget.y = Math.max(-maxReach, Math.min(maxReach, this.rightHandTarget.y));
-
-    this.leftHandCurrent.x += (this.leftHandTarget.x - this.leftHandCurrent.x) * 0.40;
-    this.leftHandCurrent.y += (this.leftHandTarget.y - this.leftHandCurrent.y) * 0.40;
-    this.rightHandCurrent.x += (this.rightHandTarget.x - this.rightHandCurrent.x) * 0.40;
-    this.rightHandCurrent.y += (this.rightHandTarget.y - this.rightHandCurrent.y) * 0.40;
-
-    if (this.isPuppyJumping) {
-      this.leftLegCurrent.x += (-28 - this.leftLegCurrent.x) * 0.2;
-      this.leftLegCurrent.y += (24 - this.leftLegCurrent.y) * 0.2;
-      this.rightLegCurrent.x += (28 - this.rightLegCurrent.x) * 0.2;
-      this.rightLegCurrent.y += (24 - this.rightLegCurrent.y) * 0.2;
-    } else if (Math.abs(this.velocity) > 0.4) {
-      const cycle = Math.sin(frameCount * 0.2);
-      this.leftLegCurrent.x += ((-38 + cycle * 14) - this.leftLegCurrent.x) * 0.35;
-      this.leftLegCurrent.y += ((44 + Math.abs(cycle) * 7) - this.leftLegCurrent.y) * 0.35;
-      this.rightLegCurrent.x += ((38 - cycle * 14) - this.rightLegCurrent.x) * 0.35;
-      this.rightLegCurrent.y += ((44 + Math.abs(cycle) * 7) - this.rightLegCurrent.y) * 0.35;
-    } else {
-      this.leftLegCurrent.x += (-38 - this.leftLegCurrent.x) * 0.15;
-      this.leftLegCurrent.y += (44 - this.leftLegCurrent.y) * 0.15;
-      this.rightLegCurrent.x += (38 - this.rightLegCurrent.x) * 0.15;
-      this.rightLegCurrent.y += (44 - this.rightLegCurrent.y) * 0.15;
-    }
-
-    if (isPlayerJumping && !this.isPuppyJumping) {
-      this.isPuppyJumping = true;
-      this.jumpVelocity = -12.5;
-    }
-
-    if (this.isPuppyJumping) {
-      this.jumpY += this.jumpVelocity;
-      this.jumpVelocity += this.gravity;
-      if (this.jumpY >= 0) {
-        this.jumpY = 0;
-        this.jumpVelocity = 0;
-        this.isPuppyJumping = false;
-      }
-    }
-  }
-
-  draw(ctx) {
-    ctx.save();
-    const py = this.y + this.bodyBounceOffset + this.jumpY;
-    const px = this.x;
-
-    // 1. Draw Tail
-    ctx.save();
-    ctx.translate(px - 45, py + 25);
-    ctx.rotate(-Math.PI / 4 + this.tailWagAngle);
-    ctx.fillStyle = '#b45309';
-    ctx.beginPath();
-    ctx.ellipse(30, -5, 25, 8, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = '#fde68a';
-    ctx.beginPath();
-    ctx.arc(50, -5, 8, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.restore();
-
-    // 2. Draw Legs
-    ctx.fillStyle = '#78350f';
-    ctx.beginPath();
-    ctx.arc(px - 34, py + 26, 20, 0, Math.PI * 2);
-    ctx.arc(px + 34, py + 26, 20, 0, Math.PI * 2);
-    ctx.fill();
-
-    const llx = px + this.leftLegCurrent.x;
-    const lly = py + this.leftLegCurrent.y;
-    ctx.fillStyle = '#d97706';
-    ctx.beginPath();
-    ctx.arc(llx, lly, 17, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = '#fda4af';
-    ctx.beginPath();
-    ctx.arc(llx, lly + 3, 9, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.arc(llx - 8, lly - 5, 4, 0, Math.PI * 2);
-    ctx.arc(llx, lly - 8, 4, 0, Math.PI * 2);
-    ctx.arc(llx + 8, lly - 5, 4, 0, Math.PI * 2);
-    ctx.fill();
-
-    const rlx = px + this.rightLegCurrent.x;
-    const rly = py + this.rightLegCurrent.y;
-    ctx.fillStyle = '#d97706';
-    ctx.beginPath();
-    ctx.arc(rlx, rly, 17, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = '#fda4af';
-    ctx.beginPath();
-    ctx.arc(rlx, rly + 3, 9, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.arc(rlx - 8, rly - 5, 4, 0, Math.PI * 2);
-    ctx.arc(rlx, rly - 8, 4, 0, Math.PI * 2);
-    ctx.arc(rlx + 8, rly - 5, 4, 0, Math.PI * 2);
-    ctx.fill();
-
-    // 3. Body
-    ctx.fillStyle = '#d97706';
-    ctx.beginPath();
-    ctx.ellipse(px, py + 20, 60, 45, 0, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.fillStyle = '#fef3c7';
-    ctx.beginPath();
-    ctx.ellipse(px, py + 25, 30, 25, 0, 0, Math.PI * 2);
-    ctx.fill();
-
-    // 5. Arms
-    ctx.fillStyle = '#d97706';
-    ctx.strokeStyle = '#d97706';
-    ctx.lineWidth = 24;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-    
-    const leftPawX = px - 32 + this.leftHandCurrent.x;
-    const leftPawY = py + 38 + this.leftHandCurrent.y;
-    ctx.beginPath();
-    ctx.moveTo(px - 30, py + 22);
-    ctx.lineTo(leftPawX, leftPawY);
-    ctx.stroke();
-
-    const rightPawX = px + 32 + this.rightHandCurrent.x;
-    const rightPawY = py + 38 + this.rightHandCurrent.y;
-    ctx.beginPath();
-    ctx.moveTo(px + 30, py + 22);
-    ctx.lineTo(rightPawX, rightPawY);
-    ctx.stroke();
-
-    ctx.fillStyle = '#d97706';
-    ctx.beginPath();
-    ctx.arc(leftPawX, leftPawY, 17, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = '#fda4af';
-    ctx.beginPath();
-    ctx.arc(leftPawX, leftPawY + 3, 9, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.arc(leftPawX - 8, leftPawY - 5, 4, 0, Math.PI * 2);
-    ctx.arc(leftPawX, leftPawY - 8, 4, 0, Math.PI * 2);
-    ctx.arc(leftPawX + 8, leftPawY - 5, 4, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.fillStyle = '#d97706';
-    ctx.beginPath();
-    ctx.arc(rightPawX, rightPawY, 17, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = '#fda4af';
-    ctx.beginPath();
-    ctx.arc(rightPawX, rightPawY + 3, 9, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.arc(rightPawX - 8, rightPawY - 5, 4, 0, Math.PI * 2);
-    ctx.arc(rightPawX, rightPawY - 8, 4, 0, Math.PI * 2);
-    ctx.arc(rightPawX + 8, rightPawY - 5, 4, 0, Math.PI * 2);
-    ctx.fill();
-
-    // 6. Head
-    ctx.fillStyle = '#d97706';
-    ctx.beginPath();
-    ctx.arc(px, py - 20, 48, 0, Math.PI * 2);
-    ctx.fill();
-
-    // 7. Ears
-    ctx.save();
-    ctx.translate(px - 42, py - 35);
-    ctx.rotate(0.2 + this.earFlopOffset * 0.02);
-    ctx.fillStyle = '#78350f';
-    ctx.beginPath();
-    ctx.ellipse(0, 30, 14, 38, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.restore();
-
-    ctx.save();
-    ctx.translate(px + 42, py - 35);
-    ctx.rotate(-0.2 - this.earFlopOffset * 0.02);
-    ctx.fillStyle = '#78350f';
-    ctx.beginPath();
-    ctx.ellipse(0, 30, 14, 38, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.restore();
-
-    // 8. Muzzle & Nose
-    ctx.fillStyle = '#fef3c7';
-    ctx.beginPath();
-    ctx.ellipse(px - 14, py - 12, 18, 14, 0, 0, Math.PI * 2);
-    ctx.ellipse(px + 14, py - 12, 18, 14, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = '#fb7185';
-    ctx.beginPath();
-    ctx.ellipse(px, py - 2, 10, 14, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.strokeStyle = '#e11d48';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(px, py - 2);
-    ctx.lineTo(px, py + 8);
-    ctx.stroke();
-    ctx.fillStyle = '#0f172a';
-    ctx.beginPath();
-    ctx.ellipse(px, py - 18, 14, 9, 0, 0, Math.PI * 2);
-    ctx.fill();
-
-    // 9. Eyes
-    ctx.fillStyle = '#0f172a';
-    ctx.beginPath();
-    ctx.arc(px - 20, py - 30, 10, 0, Math.PI * 2);
-    ctx.arc(px + 20, py - 30, 10, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = '#ffffff';
-    ctx.beginPath();
-    ctx.arc(px - 23, py - 33, 4, 0, Math.PI * 2);
-    ctx.arc(px + 17, py - 33, 4, 0, Math.PI * 2);
-    ctx.arc(px - 17, py - 27, 2, 0, Math.PI * 2);
-    ctx.arc(px + 23, py - 27, 2, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.restore();
-  }
-}
-
-// ==========================================
-// 4. Magic Fruit Slasher Entities
-// ==========================================
-class FruitPiece {
-  constructor(x, y, color, side) {
-    this.x = x;
-    this.y = y;
-    this.radius = 20;
-    this.color = color;
-    this.side = side; // -1 = left piece, 1 = right piece
-    
-    this.vx = side * (Math.random() * 3 + 2);
-    this.vy = -Math.random() * 4 - 2;
-    this.gravity = 0.3;
-    this.rotation = 0;
-    this.rotSpeed = side * 0.15;
-    this.alpha = 1.0;
-  }
-
-  update() {
-    this.x += this.vx;
-    this.vy += this.gravity;
-    this.y += this.vy;
-    this.rotation += this.rotSpeed;
-    this.alpha -= 0.02;
-  }
-
-  draw(ctx) {
-    ctx.save();
-    ctx.globalAlpha = Math.max(0, this.alpha);
-    ctx.translate(this.x, this.y);
-    ctx.rotate(this.rotation);
-    
-    // Draw sliced half moon shape
-    ctx.fillStyle = this.color;
-    ctx.beginPath();
-    ctx.arc(0, 0, this.radius, -Math.PI / 2, Math.PI / 2);
-    ctx.fill();
-
-    // Rind
-    ctx.strokeStyle = '#22c55e';
-    ctx.lineWidth = 4;
-    ctx.beginPath();
-    ctx.arc(0, 0, this.radius, -Math.PI / 2, Math.PI / 2);
-    ctx.stroke();
-
-    ctx.restore();
-  }
-}
-
-class Fruit {
-  constructor(canvasWidth, canvasHeight, level, globalSpeedMultiplier = 1.2) {
-    this.canvasWidth = canvasWidth;
-    this.canvasHeight = canvasHeight;
-    this.radius = Math.random() * 12 + 28;
-    this.x = Math.random() * (canvasWidth - 100) + 50;
-    this.y = canvasHeight - 20; // Start at the bottom of the canvas instead of offscreen
-    
-    this.isBomb = Math.random() < 0.22; // 22% are bombs
-    
-    // Propel fruit UP
-    const force = Math.random() * 3 + 9;
-    this.vx = ((canvasWidth / 2 - this.x) * 0.015 + (Math.random() * 2 - 1)) * globalSpeedMultiplier;
-    this.vy = -force * globalSpeedMultiplier;
-    this.gravity = 0.22;
-    this.isSliced = false;
-
-    const fruitColors = ['#ef4444', '#ec4899', '#f59e0b', '#eab308', '#a855f7', '#10b981', '#fb7185', '#84cc16'];
-    this.color = fruitColors[Math.floor(Math.random() * fruitColors.length)];
-    
-    // Rich variety of fruits
-    const fruitIcons = ['🍉', '🍓', '🍊', '🍍', '🍌', '🍒', '🍇', '🥝', '🍎', '🍐', '🍑', '🍋', '🥭', '🍈'];
-    this.icon = this.isBomb ? '💣' : fruitIcons[Math.floor(Math.random() * fruitIcons.length)];
-  }
-
-  update() {
-    this.x += this.vx;
-    this.vy += this.gravity;
-    this.y += this.vy;
-  }
-
-  draw(ctx) {
-    if (this.isSliced) return;
-    
-    ctx.save();
-    
-    // Draw outer body glow
-    ctx.shadowBlur = 15;
-    ctx.shadowColor = this.isBomb ? '#ef4444' : this.color;
-    
-    // Draw sphere background
-    ctx.fillStyle = this.isBomb ? '#1e293b' : this.color;
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-    ctx.fill();
-    
-    ctx.restore();
-
-    // Draw Emoji icon
-    ctx.save();
-    ctx.font = `${this.radius * 1.25}px Arial`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(this.icon, this.x, this.y);
-    ctx.restore();
-  }
-}
-
-// ==========================================
-// 5. Pat-the-Pets Entities
-// ==========================================
-class Pet {
-  constructor(burrowIndex, bx, by) {
-    this.burrowIndex = burrowIndex;
-    this.x = bx;
-    this.y = by; // Center base of burrow hole
-    
-    this.radius = 45;
-    this.state = 'spawning'; // spawning, active, retracting, patted
-    this.animY = 0; // offset upwards
-    this.maxHeight = 65;
-    this.visibleTimer = 110; // Pop duration frames
-
-    this.isHedgehog = Math.random() < 0.25; // 25% decoy spikes
-    this.icon = this.isHedgehog ? '🦔' : ['🐰', '🐹', '🐦', '🐶'][Math.floor(Math.random() * 4)];
-  }
-
-  update() {
-    if (this.state === 'spawning') {
-      this.animY += 4.5;
-      if (this.animY >= this.maxHeight) {
-        this.animY = this.maxHeight;
-        this.state = 'active';
-      }
-    } else if (this.state === 'active') {
-      this.visibleTimer--;
-      if (this.visibleTimer <= 0) {
-        this.state = 'retracting';
-      }
-    } else if (this.state === 'retracting') {
-      this.animY -= 4.5;
-      if (this.animY <= 0) {
-        this.animY = 0;
-        this.state = 'done';
-      }
-    } else if (this.state === 'patted') {
-      // Swirl spin away when patted
-      this.animY -= 6;
-      if (this.animY <= 0) {
-        this.state = 'done';
-      }
-    }
-  }
-
-  draw(ctx) {
-    const py = this.y - this.animY;
-    
-    ctx.save();
-    
-    // Clip pet rendering below the burrow line
-    ctx.beginPath();
-    ctx.rect(this.x - 70, this.y - 120, 140, 120);
-    ctx.clip();
-
-    // Draw Pet Emoji
-    ctx.font = '65px Arial';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(this.icon, this.x, py);
-
-    ctx.restore();
-  }
-}
-
-// ==========================================
-// 6. Cosmic Shield Defender Entities
-// ==========================================
-class Meteor {
-  constructor(canvasWidth, level, globalSpeedMultiplier = 1.2) {
-    this.canvasWidth = canvasWidth;
-    this.radius = Math.random() * 10 + 20;
-    this.x = Math.random() * (canvasWidth - 60) + 30;
-    this.y = -this.radius;
-    
-    // Aim directly towards the center cockpit base (w/2, h - 130)
-    this.targetX = canvasWidth / 2;
-    this.targetY = canvasWidth * 0.75; // Approx cockpit height
-    
-    const dx = this.targetX - this.x;
-    const dy = this.targetY - this.y;
-    const distance = Math.sqrt(dx * dx + dy * dy);
-    
-    const baseSpeed = Math.random() * 2 + 2;
-    const multiplier = 1.0 + (level - 1) * 0.3;
-    const speed = baseSpeed * multiplier * globalSpeedMultiplier;
-    
-    this.vx = (dx / distance) * speed;
-    this.vy = (dy / distance) * speed;
-    this.isDeflected = false;
-  }
-
-  update() {
-    this.x += this.vx;
-    this.y += this.vy;
-  }
-
-  draw(ctx) {
-    ctx.save();
-    
-    // Meteor design
-    ctx.shadowBlur = 10;
-    ctx.shadowColor = this.isDeflected ? '#4ade80' : '#f59e0b';
-    ctx.fillStyle = '#475569';
-    
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-    ctx.fill();
-    
-    // Star spots details
-    ctx.fillStyle = 'rgba(0,0,0,0.15)';
-    ctx.beginPath();
-    ctx.arc(this.x - this.radius * 0.3, this.y - this.radius * 0.2, this.radius * 0.35, 0, Math.PI * 2);
-    ctx.arc(this.x + this.radius * 0.4, this.y + this.radius * 0.3, this.radius * 0.2, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.restore();
-  }
-}
-
-// ==========================================
-// 7. Main Unified Game Engine Coordinator
+// Main Unified Game Engine Coordinator
 // ==========================================
 class GameEngine {
   constructor() {
@@ -903,7 +63,7 @@ class GameEngine {
     this.meteors = [];
     this.cosmicCockpitX = 0;
     this.cosmicCockpitY = 0;
-    this.shieldAngle = Math.PI / 2; // Shield rotation angle
+    this.shieldAngle = -Math.PI / 2; // Shield rotation angle
 
     this.particles = [];
     this.frameCount = 0;
@@ -1225,7 +385,7 @@ class GameEngine {
     } else if (this.gameMode === 'pets') {
       this.drawPetsBurrows();
       this.pets.forEach((pet) => pet.draw(this.ctx));
-      this.drawTrackingHandCrosshair();
+      this.drawToyHammers();
 
     } else if (this.gameMode === 'cosmic') {
       this.drawCosmicCockpit();
@@ -1391,21 +551,22 @@ class GameEngine {
       // Track player hands pixel coordinates
       const px = this.puppetXTarget * w;
       const py = h - 120;
-      const lhx = px - 32 - this.leftHandTargetOffset.x * 42;
-      const lhy = py + 38 + this.leftHandTargetOffset.y * 38;
+      const lhx = px - 32 - this.leftHandTargetOffset.x * 220;
+      const lhy = py + 38 + this.leftHandTargetOffset.y * 220;
       
-      const rhx = px + 32 - this.rightHandTargetOffset.x * 42;
-      const rhy = py + 38 + this.rightHandTargetOffset.y * 38;
+      const rhx = px + 32 - this.rightHandTargetOffset.x * 220;
+      const rhy = py + 38 + this.rightHandTargetOffset.y * 220;
 
       for (let i = this.fruits.length - 1; i >= 0; i--) {
         const f = this.fruits[i];
         f.update();
 
-        // Slice detection: check both hands
+        // Slice detection: check both hands (only sliceable when in the air, not at bottom spawn)
         const distL = Math.sqrt((f.x - lhx) ** 2 + (f.y - lhy) ** 2);
         const distR = Math.sqrt((f.x - rhx) ** 2 + (f.y - rhy) ** 2);
+        const isSliceable = f.y < h - 100;
 
-        if (distL < f.radius + 24 || distR < f.radius + 24) {
+        if (isSliceable && (distL < f.radius + 24 || distR < f.radius + 24)) {
           if (f.isBomb) {
             sfx.playBombBlast();
             this.lives--;
@@ -1455,10 +616,10 @@ class GameEngine {
       // Track hand coordinates
       const px = this.puppetXTarget * w;
       const py = h - 120;
-      const lhx = px - 32 - this.leftHandTargetOffset.x * 42;
-      const lhy = py + 38 + this.leftHandTargetOffset.y * 38;
-      const rhx = px + 32 - this.rightHandTargetOffset.x * 42;
-      const rhy = py + 38 + this.rightHandTargetOffset.y * 38;
+      const lhx = px - 32 - this.leftHandTargetOffset.x * 220;
+      const lhy = py + 38 + this.leftHandTargetOffset.y * 220;
+      const rhx = px + 32 - this.rightHandTargetOffset.x * 220;
+      const rhy = py + 38 + this.rightHandTargetOffset.y * 220;
 
       for (let i = this.pets.length - 1; i >= 0; i--) {
         const pet = this.pets[i];
@@ -1494,13 +655,13 @@ class GameEngine {
 
     // 4. Cosmic Defender Mode Logic
     else if (this.gameMode === 'cosmic') {
-      const spawnRate = Math.max(30, 80 - this.level * 15);
-      if (this.frameCount % spawnRate === 0 && this.meteors.length < 6) {
-        this.meteors.push(new Meteor(w, this.level, this.speedMultiplier));
+      const spawnRate = Math.max(50, 90 - this.level * 10); // Faster spawning (approx 1.3 seconds at level 1) to fill the screen with targets
+      if (this.frameCount % spawnRate === 0 && this.meteors.length < 12) { // Increased maximum comets limit to 12
+        this.meteors.push(new Meteor(w, h, this.level, this.speedMultiplier));
       }
 
-      // Revolve shield orbit angle smoothly based on horizontal shoulder lean degrees
-      this.shieldAngle = this.puppetXTarget * Math.PI;
+      // Revolve shield orbit angle smoothly across the upper sky (-PI to 0) based on player horizontal position
+      this.shieldAngle = -Math.PI + this.puppetXTarget * Math.PI;
 
       const baseCenterY = this.cosmicCockpitY;
       const baseCenterX = this.cosmicCockpitX;
@@ -1513,14 +674,14 @@ class GameEngine {
         const distToCenter = Math.sqrt((m.x - baseCenterX) ** 2 + (m.y - baseCenterY) ** 2);
         
         if (Math.abs(distToCenter - 120) < m.radius + 15 && !m.isDeflected) {
-          // Check if meteor angle aligns with shield revolve arc (shield spans shieldAngle +/- 0.5 rads)
+          // Check if meteor angle aligns with shield revolve arc (shield spans shieldAngle +/- 0.6 rads)
           const angleToMeteor = Math.atan2(m.y - baseCenterY, m.x - baseCenterX);
           
-          // Normalize angleToMeteor relative to shield arc (0.5 bounds)
+          // Normalize angleToMeteor relative to shield arc
           let deltaAngle = Math.abs(angleToMeteor - this.shieldAngle);
           if (deltaAngle > Math.PI) deltaAngle = Math.PI * 2 - deltaAngle;
 
-          if (deltaAngle < 0.55) {
+          if (deltaAngle < 0.65) {
             sfx.playBounce();
             this.score += 15;
             this.updateHUD();
@@ -1579,33 +740,61 @@ class GameEngine {
     const py = h - 120;
     
     // Smooth wrists trails
-    const lhx = px - 32 - this.leftHandTargetOffset.x * 42;
-    const lhy = py + 38 + this.leftHandTargetOffset.y * 38;
+    const lhx = px - 32 - this.leftHandTargetOffset.x * 220;
+    const lhy = py + 38 + this.leftHandTargetOffset.y * 220;
     
-    const rhx = px + 32 - this.rightHandTargetOffset.x * 42;
-    const rhy = py + 38 + this.rightHandTargetOffset.y * 38;
+    const rhx = px + 32 - this.rightHandTargetOffset.x * 220;
+    const rhy = py + 38 + this.rightHandTargetOffset.y * 220;
 
+    this.drawGlowingSword(ctx, lhx, lhy, '#38bdf8');
+    this.drawGlowingSword(ctx, rhx, rhy, '#ec4899');
+  }
+
+  drawGlowingSword(ctx, x, y, color) {
     ctx.save();
+    
+    // 1. Draw Blade (glowing outer laser casing)
+    ctx.shadowBlur = 24;
+    ctx.shadowColor = color;
+    ctx.strokeStyle = color;
     ctx.lineWidth = 14;
     ctx.lineCap = 'round';
-    ctx.shadowBlur = 18;
-
-    // Draw Left laser saber blade
-    ctx.strokeStyle = '#38bdf8';
-    ctx.shadowColor = '#38bdf8';
+    
     ctx.beginPath();
-    ctx.moveTo(lhx - 10, lhy + 20);
-    ctx.lineTo(lhx + 10, lhy - 45);
+    ctx.moveTo(x, y + 10);
+    ctx.lineTo(x, y - 75); // 85px tall glowing blade
     ctx.stroke();
-
-    // Draw Right laser saber blade
-    ctx.strokeStyle = '#ec4899';
-    ctx.shadowColor = '#ec4899';
+    
+    // Core white-hot laser glow (blazing center)
+    ctx.shadowBlur = 0;
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 5;
     ctx.beginPath();
-    ctx.moveTo(rhx + 10, rhy + 20);
-    ctx.lineTo(rhx - 10, rhy - 45);
+    ctx.moveTo(x, y + 8);
+    ctx.lineTo(x, y - 70);
     ctx.stroke();
-
+    
+    // 2. Draw Crossguard (hilt bar protecting the hands)
+    ctx.fillStyle = '#64748b'; // Slate steel metal
+    ctx.strokeStyle = '#94a3b8';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.ellipse(x, y + 10, 18, 5, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    
+    // 3. Draw Handle (grip grip)
+    ctx.fillStyle = '#1e293b'; // Dark grip
+    ctx.beginPath();
+    ctx.rect(x - 4, y + 10, 8, 26);
+    ctx.fill();
+    
+    // 4. Draw Pommel gemstone
+    ctx.fillStyle = '#f59e0b'; // Golden pommel gem
+    ctx.beginPath();
+    ctx.arc(x, y + 36, 5, 0, Math.PI * 2);
+    ctx.fill();
+    
     ctx.restore();
   }
 
@@ -1631,7 +820,7 @@ class GameEngine {
     });
   }
 
-  drawTrackingHandCrosshair() {
+  drawToyHammers() {
     const ctx = this.ctx;
     const w = this.canvas.width;
     const h = this.canvas.height;
@@ -1639,35 +828,57 @@ class GameEngine {
     const px = this.puppetXTarget * w;
     const py = h - 120;
     
-    const lhx = px - 32 - this.leftHandTargetOffset.x * 42;
-    const lhy = py + 38 + this.leftHandTargetOffset.y * 38;
+    const lhx = px - 32 - this.leftHandTargetOffset.x * 220;
+    const lhy = py + 38 + this.leftHandTargetOffset.y * 220;
     
-    const rhx = px + 32 - this.rightHandTargetOffset.x * 42;
-    const rhy = py + 38 + this.rightHandTargetOffset.y * 38;
+    const rhx = px + 32 - this.rightHandTargetOffset.x * 220;
+    const rhy = py + 38 + this.rightHandTargetOffset.y * 220;
 
+    // Draw left hammer (blue) and right hammer (pink/red)
+    this.drawSingleHammer(ctx, lhx, lhy, '#38bdf8', '#0369a1');
+    this.drawSingleHammer(ctx, rhx, rhy, '#ec4899', '#9d174d');
+  }
+
+  drawSingleHammer(ctx, x, y, color, strokeColor) {
     ctx.save();
-    ctx.lineWidth = 3;
-    ctx.strokeStyle = 'rgba(255,255,255,0.7)';
-
-    // Left hand target ring crosshair
+    
+    // 1. Handle (Yellow plastic grip shaft going downwards)
+    ctx.fillStyle = '#fbbf24'; // Golden yellow
+    ctx.strokeStyle = '#d97706';
+    ctx.lineWidth = 2.5;
     ctx.beginPath();
-    ctx.arc(lhx, lhy, 22, 0, Math.PI * 2);
-    ctx.stroke();
-    // Center glow dot
-    ctx.fillStyle = '#38bdf8';
-    ctx.beginPath();
-    ctx.arc(lhx, lhy, 6, 0, Math.PI * 2);
+    ctx.roundRect(x - 6, y + 8, 12, 48, 5);
     ctx.fill();
-
-    // Right hand target ring crosshair
-    ctx.beginPath();
-    ctx.arc(rhx, rhy, 22, 0, Math.PI * 2);
     ctx.stroke();
-    // Center glow dot
-    ctx.fillStyle = '#ec4899';
+    
+    // Red rubber grip bands on the handle
+    ctx.fillStyle = '#ef4444';
+    ctx.fillRect(x - 6, y + 32, 12, 4);
+    ctx.fillRect(x - 6, y + 42, 12, 4);
+    
+    // 2. Hammer Head (Large, rounded whack-a-mole mallet head)
+    ctx.fillStyle = color;
+    ctx.strokeStyle = strokeColor;
+    ctx.lineWidth = 3.5;
     ctx.beginPath();
-    ctx.arc(rhx, rhy, 6, 0, Math.PI * 2);
+    ctx.roundRect(x - 38, y - 18, 76, 36, 8);
     ctx.fill();
+    ctx.stroke();
+    
+    // Soft yellow rubber impact cushions on the left and right sides
+    ctx.fillStyle = '#fef08a';
+    ctx.beginPath();
+    ctx.ellipse(x - 38, y, 6, 18, 0, 0, Math.PI * 2);
+    ctx.ellipse(x + 38, y, 6, 18, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    
+    // White star icon in the center of the mallet head
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 20px Fredoka';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('★', x, y);
 
     ctx.restore();
   }
@@ -1697,7 +908,9 @@ class GameEngine {
     ctx.lineCap = 'round';
     
     ctx.beginPath();
-    ctx.arc(cx, cy, 120, this.shieldAngle - 0.5, this.shieldAngle + 0.5);
+    let drawAngle = this.shieldAngle;
+    if (drawAngle < 0) drawAngle += Math.PI * 2; // Force strictly positive angles to guarantee top-arc rendering on all browsers
+    ctx.arc(cx, cy, 120, drawAngle - 0.6, drawAngle + 0.6);
     ctx.stroke();
 
     // 3. Draw player central spaceship core capsule cockpit

@@ -3,7 +3,7 @@
  * Wrapper around MediaPipe Pose for tracking the player's horizontal position.
  */
 
-class PoseTracker {
+export class PoseTracker {
   constructor() {
     this.videoElement = document.getElementById('webcam');
     this.overlayCanvas = document.getElementById('camera-overlay');
