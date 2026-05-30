@@ -674,11 +674,12 @@ class FruitPiece {
 }
 
 class Fruit {
-  constructor(canvasWidth, level, globalSpeedMultiplier = 1.2) {
+  constructor(canvasWidth, canvasHeight, level, globalSpeedMultiplier = 1.2) {
     this.canvasWidth = canvasWidth;
+    this.canvasHeight = canvasHeight;
     this.radius = Math.random() * 12 + 28;
     this.x = Math.random() * (canvasWidth - 100) + 50;
-    this.y = canvasWidth * 0.7; // Start low on the screen
+    this.y = canvasHeight - 20; // Start at the bottom of the canvas instead of offscreen
     
     this.isBomb = Math.random() < 0.22; // 22% are bombs
     
@@ -689,9 +690,12 @@ class Fruit {
     this.gravity = 0.22;
     this.isSliced = false;
 
-    const fruitColors = ['#ef4444', '#ec4899', '#f59e0b', '#eab308', '#a855f7'];
+    const fruitColors = ['#ef4444', '#ec4899', '#f59e0b', '#eab308', '#a855f7', '#10b981', '#fb7185', '#84cc16'];
     this.color = fruitColors[Math.floor(Math.random() * fruitColors.length)];
-    this.icon = this.isBomb ? '💣' : ['🍉', '🍓', '🍊', '🍍', '🍌'][Math.floor(Math.random() * 5)];
+    
+    // Rich variety of fruits
+    const fruitIcons = ['🍉', '🍓', '🍊', '🍍', '🍌', '🍒', '🍇', '🥝', '🍎', '🍐', '🍑', '🍋', '🥭', '🍈'];
+    this.icon = this.isBomb ? '💣' : fruitIcons[Math.floor(Math.random() * fruitIcons.length)];
   }
 
   update() {
@@ -1381,7 +1385,7 @@ class GameEngine {
     else if (this.gameMode === 'fruits') {
       const spawnRate = Math.max(30, 75 - this.level * 12);
       if (this.frameCount % spawnRate === 0 && this.fruits.length < 5) {
-        this.fruits.push(new Fruit(w, this.level, this.speedMultiplier));
+        this.fruits.push(new Fruit(w, h, this.level, this.speedMultiplier));
       }
 
       // Track player hands pixel coordinates
