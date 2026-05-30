@@ -46,6 +46,41 @@ Because this project is built entirely on vanilla front-end scripts, it requires
 
 ---
 
+## 🏗️ Detailed Architecture & System Flow
+
+```mermaid
+sequenceDiagram
+    participant Player
+    participant WebCamera as Web Camera
+    participant MediaPipe as MediaPipe Pose
+    participant Router as Playground Router (app.js)
+    participant Audio as Web Audio Synth
+
+    Player->>Router: Selects Game from Carousel Card
+    Router->>Router: Enters active Playing state immediately (No Delay)
+    Player->>WebCamera: Standing, waving arms, leaning & jumping
+    WebCamera->>MediaPipe: Video frames
+    MediaPipe->>Router: Coordinates (Shoulders, Wrists, Nose)
+    alt Mode: Puppy Bounce
+        Router->>Router: Updates Puppy, walking feet & Balloon Collisions
+    else Mode: Fruit Slasher
+        Router->>Router: Triggers Slicing Blades & Spliced Fruits physics
+    else Mode: Pat-the-Pets
+        Router->>Router: Updates Burrows & targets pats colliders
+    else Mode: Cosmic Defender
+        Router->>Router: Rotates orbital shield & meteor deflections
+    end
+    Router->>Audio: Plays dynamic synthesized sound effects (bounce, slash, pop, bomb blast)
+```
+
+### Architectural Breakdown:
+1. **Camera Sensor Core (`pose-tracker.js`)**: Manages webcam frames and feeds them to the MediaPipe Pose model. It computes normalized horizontal and vertical coordinates of the shoulders and wrists, alongside a highly robust relative nose-height threshold to determine jumping.
+2. **Gateway Game Router (`app.js`)**: The heartbeat coordinator of the playground. It receives coordinates from the pose tracker and routes them into the active game mode's unique rendering layers at a fluid 60 FPS.
+3. **HTML5 Interactive Canvas (`game-canvas`)**: High-performance canvas handling custom vector drawings (e.g. animated walk-cycles for the puppy dog, twin glowing laser swords, rotating cockpit dials) and complex physical formulas (e.g. asteroid deflections, split-fruit trajectory gravity).
+4. **Web Audio FX Synthesizer (`SoundSynth`)**: Encompasses real-time procedural synthesizers wrapped in robust error bounds. It generates playful SFX dynamically on-the-fly, completely bypassing static file dependencies.
+
+---
+
 ## ⌨️ Fallback Interactive Controls
 
 If you are playing on a device without a camera, or camera access is blocked:
