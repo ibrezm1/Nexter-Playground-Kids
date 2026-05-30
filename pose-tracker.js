@@ -16,7 +16,7 @@ class PoseTracker {
     // Smooth tracked X position using linear interpolation (lerp)
     this.rawTrackedX = 0.5; // range [0, 1]
     this.smoothedTrackedX = 0.5;
-    this.lerpFactor = 0.25; // How fast the puppet responds (0.1 = smooth, 1.0 = instant)
+    this.lerpFactor = 0.45; // How fast the puppet responds (0.1 = smooth, 1.0 = instant)
     
     this.isTrackingActive = false;
     this.onTrackingCallback = null;

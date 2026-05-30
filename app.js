@@ -400,10 +400,10 @@ class PuppyPuppet {
     this.rightHandTarget.x = Math.max(-maxReach, Math.min(maxReach, this.rightHandTarget.x));
     this.rightHandTarget.y = Math.max(-maxReach, Math.min(maxReach, this.rightHandTarget.y));
 
-    this.leftHandCurrent.x += (this.leftHandTarget.x - this.leftHandCurrent.x) * 0.22;
-    this.leftHandCurrent.y += (this.leftHandTarget.y - this.leftHandCurrent.y) * 0.22;
-    this.rightHandCurrent.x += (this.rightHandTarget.x - this.rightHandCurrent.x) * 0.22;
-    this.rightHandCurrent.y += (this.rightHandTarget.y - this.rightHandCurrent.y) * 0.22;
+    this.leftHandCurrent.x += (this.leftHandTarget.x - this.leftHandCurrent.x) * 0.40;
+    this.leftHandCurrent.y += (this.leftHandTarget.y - this.leftHandCurrent.y) * 0.40;
+    this.rightHandCurrent.x += (this.rightHandTarget.x - this.rightHandCurrent.x) * 0.40;
+    this.rightHandCurrent.y += (this.rightHandTarget.y - this.rightHandCurrent.y) * 0.40;
 
     if (this.isPuppyJumping) {
       this.leftLegCurrent.x += (-28 - this.leftLegCurrent.x) * 0.2;
