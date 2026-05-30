@@ -23,6 +23,17 @@
         <canvas id="camera-overlay"></canvas>
       </div>
       <div id="camera-status" class="status-connecting">Initializing Camera...</div>
+      
+      <!-- Game Settings Speed Control -->
+      <div class="settings-control">
+        <label for="speed-slider" class="settings-label">🎈 Speed Control</label>
+        <div class="slider-wrapper">
+          <span class="slider-emoji">🐢</span>
+          <input type="range" id="speed-slider" min="0.5" max="2.5" step="0.1" value="1.2">
+          <span class="slider-emoji">🚀</span>
+        </div>
+        <div class="speed-value-display">Multiplier: <span id="speed-multiplier-val">1.2x</span></div>
+      </div>
     </div>
 
     <!-- Main Game Area -->

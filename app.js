@@ -273,7 +273,7 @@ class Particle {
 // 3. Puppy Balloon Bounce Entities
 // ==========================================
 class Balloon {
-  constructor(canvasWidth, level) {
+  constructor(canvasWidth, level, globalSpeedMultiplier = 1.2) {
     this.canvasWidth = canvasWidth;
     this.radius = Math.random() * 30 + 45; // Bigger balloons (45px to 75px) for easier kid swats
     this.x = Math.random() * (canvasWidth - this.radius * 2) + this.radius;
@@ -282,9 +282,9 @@ class Balloon {
     const colors = ['#f43f5e', '#ec4899', '#a855f7', '#06b6d4', '#10b981', '#f59e0b', '#ef4444'];
     this.color = colors[Math.floor(Math.random() * colors.length)];
     
-    const baseSpeed = Math.random() * 0.9 + 0.7; // Slower falling speed (0.7 to 1.6)
+    const baseSpeed = Math.random() * 0.9 + 0.85; // slightly faster than previous slow default (0.85 to 1.75)
     const speedMultiplier = 1.0 + (level - 1) * 0.22;
-    this.vy = baseSpeed * speedMultiplier;
+    this.vy = baseSpeed * speedMultiplier * globalSpeedMultiplier;
     
     this.vx = 0;
     this.windFrequency = Math.random() * 0.02 + 0.01;
@@ -672,7 +672,7 @@ class FruitPiece {
 }
 
 class Fruit {
-  constructor(canvasWidth, level) {
+  constructor(canvasWidth, level, globalSpeedMultiplier = 1.2) {
     this.canvasWidth = canvasWidth;
     this.radius = Math.random() * 12 + 28;
     this.x = Math.random() * (canvasWidth - 100) + 50;
@@ -682,8 +682,8 @@ class Fruit {
     
     // Propel fruit UP
     const force = Math.random() * 3 + 9;
-    this.vx = (canvasWidth / 2 - this.x) * 0.015 + (Math.random() * 2 - 1);
-    this.vy = -force;
+    this.vx = ((canvasWidth / 2 - this.x) * 0.015 + (Math.random() * 2 - 1)) * globalSpeedMultiplier;
+    this.vy = -force * globalSpeedMultiplier;
     this.gravity = 0.22;
     this.isSliced = false;
 
@@ -795,7 +795,7 @@ class Pet {
 // 6. Cosmic Shield Defender Entities
 // ==========================================
 class Meteor {
-  constructor(canvasWidth, level) {
+  constructor(canvasWidth, level, globalSpeedMultiplier = 1.2) {
     this.canvasWidth = canvasWidth;
     this.radius = Math.random() * 10 + 20;
     this.x = Math.random() * (canvasWidth - 60) + 30;
@@ -811,7 +811,7 @@ class Meteor {
     
     const baseSpeed = Math.random() * 2 + 2;
     const multiplier = 1.0 + (level - 1) * 0.3;
-    const speed = baseSpeed * multiplier;
+    const speed = baseSpeed * multiplier * globalSpeedMultiplier;
     
     this.vx = (dx / distance) * speed;
     this.vy = (dy / distance) * speed;
@@ -875,6 +875,9 @@ class GameEngine {
     this.level = 1;
     this.timeLeft = 60;
     this.lives = 5; // 5 chances (hearts) instead of 3 for easier kid play
+    this.speedMultiplier = 1.2;
+    this.speedSlider = document.getElementById('speed-slider');
+    this.speedMultiplierValEl = document.getElementById('speed-multiplier-val');
     
     this.tracker = new PoseTracker();
     this.puppy = null;
@@ -958,6 +961,15 @@ class GameEngine {
         }, 120);
       }
     });
+
+    // Dynamic Speed Slider adjustments
+    if (this.speedSlider) {
+      this.speedSlider.addEventListener('input', (e) => {
+        const val = parseFloat(e.target.value);
+        this.speedMultiplier = val;
+        this.speedMultiplierValEl.textContent = `${val.toFixed(1)}x`;
+      });
+    }
 
     // Mouse Fallback Controls (Mouse moves arms and swat paths)
     this.canvas.addEventListener('mousemove', (e) => {
@@ -1278,7 +1290,7 @@ class GameEngine {
     if (this.gameMode === 'puppy') {
       const spawnRate = Math.max(35, 80 - this.level * 15);
       if (this.frameCount % spawnRate === 0 && this.balloons.length < 7) {
-        this.balloons.push(new Balloon(w, this.level));
+        this.balloons.push(new Balloon(w, this.level, this.speedMultiplier));
       }
 
       for (let i = this.balloons.length - 1; i >= 0; i--) {
@@ -1349,7 +1361,7 @@ class GameEngine {
     else if (this.gameMode === 'fruits') {
       const spawnRate = Math.max(30, 75 - this.level * 12);
       if (this.frameCount % spawnRate === 0 && this.fruits.length < 5) {
-        this.fruits.push(new Fruit(w, this.level));
+        this.fruits.push(new Fruit(w, this.level, this.speedMultiplier));
       }
 
       // Track player hands pixel coordinates
@@ -1460,7 +1472,7 @@ class GameEngine {
     else if (this.gameMode === 'cosmic') {
       const spawnRate = Math.max(30, 80 - this.level * 15);
       if (this.frameCount % spawnRate === 0 && this.meteors.length < 6) {
-        this.meteors.push(new Meteor(w, this.level));
+        this.meteors.push(new Meteor(w, this.level, this.speedMultiplier));
       }
 
       // Revolve shield orbit angle smoothly based on horizontal shoulder lean degrees
