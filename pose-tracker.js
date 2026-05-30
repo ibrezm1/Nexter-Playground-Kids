@@ -138,12 +138,12 @@ class PoseTracker {
         const heightDiff = this.yBaseline - currentY;
         
         // Only adjust the standing baseline height when player is standing relatively still/grounded
-        if (heightDiff < 0.045 && heightDiff > -0.045) {
+        if (heightDiff < 0.038 && heightDiff > -0.038) {
           this.yBaseline += (currentY - this.yBaseline) * 0.02;
         }
         
-        // Slightly higher threshold of 0.075 to ensure a deliberate jump trigger
-        const jumpThreshold = 0.075;
+        // Lowered threshold from 0.075 to 0.038 to make jumping much more sensitive and easy to trigger for kids
+        const jumpThreshold = 0.038;
         this.isJumping = heightDiff > jumpThreshold;
       }
     }
