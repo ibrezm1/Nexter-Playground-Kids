@@ -276,7 +276,9 @@ class Balloon {
   constructor(canvasWidth, level, globalSpeedMultiplier = 1.2) {
     this.canvasWidth = canvasWidth;
     this.radius = Math.random() * 30 + 45; // Bigger balloons (45px to 75px) for easier kid swats
-    this.x = Math.random() * (canvasWidth - this.radius * 2) + this.radius;
+    // Use a center-biased distribution so more balloons spawn in the center than near the edges
+    const centerBiasedRand = (Math.random() + Math.random()) / 2;
+    this.x = centerBiasedRand * (canvasWidth - this.radius * 2) + this.radius;
     this.y = -this.radius;
     
     const colors = ['#f43f5e', '#ec4899', '#a855f7', '#06b6d4', '#10b981', '#f59e0b', '#ef4444'];
@@ -389,12 +391,12 @@ class PuppyPuppet {
     this.earFlopOffset = Math.sin(frameCount * 0.15) * 4 + (Math.abs(this.velocity) * 0.15);
     this.bodyBounceOffset = Math.sin(frameCount * 0.07) * 3;
 
-    this.leftHandTarget.x = -leftHandOffset.x * 42;
-    this.leftHandTarget.y = leftHandOffset.y * 38;
-    this.rightHandTarget.x = -rightHandOffset.x * 42;
-    this.rightHandTarget.y = rightHandOffset.y * 38;
+    this.leftHandTarget.x = -leftHandOffset.x * 60;
+    this.leftHandTarget.y = leftHandOffset.y * 55;
+    this.rightHandTarget.x = -rightHandOffset.x * 60;
+    this.rightHandTarget.y = rightHandOffset.y * 55;
 
-    const maxReach = 50;
+    const maxReach = 72;
     this.leftHandTarget.x = Math.max(-maxReach, Math.min(maxReach, this.leftHandTarget.x));
     this.leftHandTarget.y = Math.max(-maxReach, Math.min(maxReach, this.leftHandTarget.y));
     this.rightHandTarget.x = Math.max(-maxReach, Math.min(maxReach, this.rightHandTarget.x));
