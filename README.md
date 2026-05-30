@@ -39,8 +39,8 @@ Because this project is built entirely on vanilla front-end scripts, it requires
    - Under **Build and deployment**, select **Deploy from a branch** under Source.
    - Under **Branch**, select `main` (and `/root` folder) and click **Save**.
 4. **Play!**:
-   - Wait 1-2 minutes. GitHub will deploy your site and provide a live URL, e.g.:
-     `https://YOUR_USERNAME.github.io/kids-motion-playground/`
+   - The live playground is hosted at:
+     **[https://ibrezm1.github.io/Nexter-Playground-Kids/](https://ibrezm1.github.io/Nexter-Playground-Kids/)**
 
 ---
 
