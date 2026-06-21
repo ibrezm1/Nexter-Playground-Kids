@@ -15,7 +15,7 @@ export class Balloon {
     const colors = ['#f43f5e', '#ec4899', '#a855f7', '#06b6d4', '#10b981', '#f59e0b', '#ef4444'];
     this.color = colors[Math.floor(Math.random() * colors.length)];
     
-    const baseSpeed = Math.random() * 0.4 + 0.7; // Very gentle floaty balloon falling speed (0.7 to 1.1)
+    const baseSpeed = Math.random() * 0.6 + 10.2; // Faster balloon falling speed (1.2 to 1.8)
     const speedMultiplier = 1.0 + (level - 1) * 0.15; // Moderated level speed scaling
     this.vy = baseSpeed * speedMultiplier * globalSpeedMultiplier;
     

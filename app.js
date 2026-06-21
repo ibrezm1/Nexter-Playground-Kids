@@ -472,8 +472,8 @@ class GameEngine {
 
     // 1. Puppy Game Mode Logic
     if (this.gameMode === 'puppy') {
-      const spawnRate = Math.max(35, 80 - this.level * 15);
-      if (this.frameCount % spawnRate === 0 && this.balloons.length < 7) {
+      const spawnRate = Math.max(12, 35 - this.level * 5);
+      if (this.frameCount % spawnRate === 0 && this.balloons.length < 20) {
         this.balloons.push(new Balloon(w, this.level, this.speedMultiplier));
       }
 
@@ -825,9 +825,10 @@ class GameEngine {
     const h = this.canvas.height;
 
     // Track hand coordinates (mapped to align perfectly with burrow holes when hands are raised)
+    const px = this.puppetXTarget * w;
     const lhx = px - 32 - this.leftHandTargetOffset.x * 220;
     const lhy = h * 0.75 + 100 + this.leftHandTargetOffset.y * 180;
-    
+
     const rhx = px + 32 - this.rightHandTargetOffset.x * 220;
     const rhy = h * 0.75 + 100 + this.rightHandTargetOffset.y * 180;
 
