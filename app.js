@@ -73,6 +73,9 @@ class GameEngine {
     this.puppetXTarget = 0.5;
     this.leftHandTargetOffset = { x: 0, y: 0 };
     this.rightHandTargetOffset = { x: 0, y: 0 };
+    this.leftLegTargetOffset = { x: 0, y: 0 };
+    this.rightLegTargetOffset = { x: 0, y: 0 };
+    this.hasLegTracking = false;
     this.playerIsJumping = false;
     
     // Left/Right Hand previous tracking positions for slicing trails
@@ -148,12 +151,12 @@ class GameEngine {
       const px = this.puppetXTarget * this.canvas.width;
       const py = this.canvas.height - 120;
       
-      // Mirror displacement offsets proportionately
-      this.leftHandTargetOffset.x = (mouseX - (px - 32)) * 0.015;
-      this.leftHandTargetOffset.y = (mouseY - (py + 38)) * 0.015;
+      // Mirror displacement offsets proportionately (negative x reaches outward to screen-left)
+      this.leftHandTargetOffset.x = -(mouseX - (px - 28)) * 0.015;
+      this.leftHandTargetOffset.y = (mouseY - (py + 18)) * 0.015;
       
-      this.rightHandTargetOffset.x = (mouseX - (px + 32)) * 0.015;
-      this.rightHandTargetOffset.y = (mouseY - (py + 38)) * 0.015;
+      this.rightHandTargetOffset.x = -(mouseX - (px + 28)) * 0.015;
+      this.rightHandTargetOffset.y = (mouseY - (py + 18)) * 0.015;
     });
 
     window.addEventListener('resize', () => this.resizeCanvas());
@@ -174,6 +177,9 @@ class GameEngine {
       this.puppetXTarget = (1.0 - data.x);
       this.leftHandTargetOffset = data.leftHand;
       this.rightHandTargetOffset = data.rightHand;
+      this.leftLegTargetOffset = data.leftLeg || { x: 0, y: 0 };
+      this.rightLegTargetOffset = data.rightLeg || { x: 0, y: 0 };
+      this.hasLegTracking = !!data.hasLegTracking;
       this.playerIsJumping = data.isJumping;
 
       // Auto next level if hands are raised up high
@@ -368,7 +374,16 @@ class GameEngine {
       this.balloons.forEach((b) => b.draw(this.ctx));
       
       const pixelTargetX = this.puppetXTarget * this.canvas.width;
-      this.puppy.update(pixelTargetX, this.frameCount, this.leftHandTargetOffset, this.rightHandTargetOffset, this.playerIsJumping);
+      this.puppy.update(
+        pixelTargetX,
+        this.frameCount,
+        this.leftHandTargetOffset,
+        this.rightHandTargetOffset,
+        this.leftLegTargetOffset,
+        this.rightLegTargetOffset,
+        this.hasLegTracking,
+        this.playerIsJumping
+      );
       this.puppy.draw(this.ctx);
       
     } else if (this.gameMode === 'fruits') {
@@ -489,10 +504,10 @@ class GameEngine {
 
         const headX = this.puppy.x;
         const headY = this.puppy.y - 20 + this.puppy.jumpY;
-        const leftPawColX = this.puppy.x - 32 + this.puppy.leftHandCurrent.x;
-        const leftPawColY = this.puppy.y + 38 + this.puppy.leftHandCurrent.y + this.puppy.jumpY;
-        const rightPawColX = this.puppy.x + 32 + this.puppy.rightHandCurrent.x;
-        const rightPawColY = this.puppy.y + 38 + this.puppy.rightHandCurrent.y + this.puppy.jumpY;
+        const leftPawPos = this.puppy.leftPaw;
+        const rightPawPos = this.puppy.rightPaw;
+        const leftFootPos = this.puppy.leftFoot;
+        const rightFootPos = this.puppy.rightFoot;
 
         const getDistance = (x1, y1, x2, y2) => {
           const dx = x2 - x1;
@@ -501,11 +516,13 @@ class GameEngine {
         };
 
         const distToHead = getDistance(b.x, b.y, headX, headY);
-        const distToLeftPaw = getDistance(b.x, b.y, leftPawColX, leftPawColY);
-        const distToRightPaw = getDistance(b.x, b.y, rightPawColX, rightPawColY);
+        const distToLeftPaw = getDistance(b.x, b.y, leftPawPos.x, leftPawPos.y);
+        const distToRightPaw = getDistance(b.x, b.y, rightPawPos.x, rightPawPos.y);
+        const distToLeftFoot = getDistance(b.x, b.y, leftFootPos.x, leftFootPos.y);
+        const distToRightFoot = getDistance(b.x, b.y, rightFootPos.x, rightFootPos.y);
 
         const headHitRadius = this.puppy.radius - 12 + b.radius;
-        const pawHitRadius = 24 + b.radius;
+        const limbHitRadius = 24 + b.radius;
 
         let hasCollision = false;
         let colCenterX = headX;
@@ -517,16 +534,26 @@ class GameEngine {
           colCenterX = headX;
           colCenterY = headY;
           colRadius = headHitRadius;
-        } else if (distToLeftPaw < pawHitRadius) {
+        } else if (distToLeftPaw < limbHitRadius) {
           hasCollision = true;
-          colCenterX = leftPawColX;
-          colCenterY = leftPawColY;
-          colRadius = pawHitRadius;
-        } else if (distToRightPaw < pawHitRadius) {
+          colCenterX = leftPawPos.x;
+          colCenterY = leftPawPos.y;
+          colRadius = limbHitRadius;
+        } else if (distToRightPaw < limbHitRadius) {
           hasCollision = true;
-          colCenterX = rightPawColX;
-          colCenterY = rightPawColY;
-          colRadius = pawHitRadius;
+          colCenterX = rightPawPos.x;
+          colCenterY = rightPawPos.y;
+          colRadius = limbHitRadius;
+        } else if (distToLeftFoot < limbHitRadius) {
+          hasCollision = true;
+          colCenterX = leftFootPos.x;
+          colCenterY = leftFootPos.y;
+          colRadius = limbHitRadius;
+        } else if (distToRightFoot < limbHitRadius) {
+          hasCollision = true;
+          colCenterX = rightFootPos.x;
+          colCenterY = rightFootPos.y;
+          colRadius = limbHitRadius;
         }
 
         if (hasCollision) {
